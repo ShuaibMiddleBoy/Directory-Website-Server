@@ -1,0 +1,133 @@
+const userModel = require('../models/usersModel');
+const { hashPassword, comparePassword } = require("../helpers/authHelper.js");
+const jwt = require("jsonwebtoken");
+
+// For Registration || POST
+const registerController = async (req, res) => {
+    try {
+        const { firstName, lastName, email, phone, password, cPassword } = req.body;
+
+        // validation
+        if (!firstName) {
+            res.json({ "message": "First Name is Required" });
+        }
+        if (!lastName) {
+            res.json({ "message": "Last Name is Required" });
+        }
+        if (!email) {
+            res.json({ "message": "Email is Required" });
+        }
+        if (!phone) {
+            res.json({ "message": "Phone is Required" });
+        }
+        if (!password) {
+            res.json({ "message": "Password is Required" });
+        }
+        if (!cPassword) {
+            res.json({ "message": "Confirm Password is Required" });
+        }
+
+
+        // check if the password and the confirm password match
+        if (password != cPassword) {
+            res.json({ "error": "Password and Confirm Password do not match" });
+            return;
+        }
+
+        // check user
+        const existingUser = await userModel.findOne({ email });
+        // existing user
+        if (existingUser) {
+            return res.status(404).send({
+                success: false,
+                message: "Already Register please login"
+            })
+        }
+
+        // register user
+        const hashedPassword = await hashPassword(password);
+
+        const user = new userModel({
+            firstName, lastName, email, phone, password: hashedPassword
+        });
+
+        const result = await user.save();
+
+        res.status(200).send({
+            success: true,
+            message: "User Regisget Successfully",
+            result
+        })
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            success: false,
+            message: "Error in Registration",
+            error
+        })
+    }
+}
+
+
+// For Login || POST
+
+const loginController = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // validation
+        if (!email || !password) {
+            return res.status(404).send({
+                success: false,
+                message: "Invalid email or password"
+            })
+        }
+
+        // check user
+        const user = await userModel.findOne({ email });
+        if (!user) {
+            return res.status(404).send({
+                success: false,
+                message: "Email is not registered"
+            })
+        }
+
+        // checking password
+        const match = await comparePassword(password, user.password);
+        if (!match) {
+            return res.status(404).send({
+                success: false,
+                message: "Invalid Password"
+            })
+        }
+        const token = await jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+            expiresIn: "7d"
+        });
+
+        res.status(200).send({
+            success: true,
+            message: "Login Successfully",
+            user: {
+                firstName: user.firstName,
+                lastName: user.lastName,
+                phone: user.phone,
+                email: user.email
+            },
+            token
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error in login',
+            error
+        })
+    }
+}
+
+const testingrouter = (req, res) => {
+    console.log("HEllo protected router");
+    res.send("HEllo protected router")
+}
+module.exports = { registerController, loginController, testingrouter }
