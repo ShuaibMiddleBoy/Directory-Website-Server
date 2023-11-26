@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 // For Registration || POST
 const registerController = async (req, res) => {
     try {
-        const { firstName, lastName, email, phone, password, cPassword } = req.body;
+        const { firstName, lastName, email, phone, password, cPassword, securityQuestion } = req.body;
 
         // validation
         if (!firstName) {
@@ -26,7 +26,9 @@ const registerController = async (req, res) => {
         if (!cPassword) {
             res.json({ "message": "Confirm Password is Required" });
         }
-
+        if (!securityQuestion) {
+            res.json({ "message": "Confirm Password is Required" });
+        }
 
         // check if the password and the confirm password match
         if (password != cPassword) {
@@ -48,14 +50,14 @@ const registerController = async (req, res) => {
         const hashedPassword = await hashPassword(password);
 
         const user = new userModel({
-            firstName, lastName, email, phone, password: hashedPassword
+            firstName, lastName, email, phone, password: hashedPassword, securityQuestion
         });
 
         const result = await user.save();
 
         res.status(200).send({
             success: true,
-            message: "User Regisget Successfully",
+            message: "User Regisger Successfully",
             result
         })
 
@@ -126,8 +128,39 @@ const loginController = async (req, res) => {
     }
 }
 
-const testingrouter = (req, res) => {
-    console.log("HEllo protected router");
-    res.send("HEllo protected router")
+const forgotPasswordController = async (req, res) => {
+    try {
+        const { email, securityQuestion, newPassword } = req.body;
+        if (!email) {
+            res.status(404).send("Email is required");
+        }
+        if (!securityQuestion) {
+            res.status(404).send("Security Question is required");
+        }
+        if (!newPassword) {
+            res.status(404).send("New Password is required");
+        }
+        // check
+        const user = await userModel.findOne({ email, securityQuestion });
+        if (!user) {
+            return res.status(404).send({
+                success: false,
+                message: "Wrong Email or Answer"
+            })
+        }
+        const hashed = await hashPassword(newPassword);
+        await userModel.findByIdAndUpdate(user._id, { password: hashed });
+        res.status(201).send({
+            success: true,
+            message: "Password Reset Successfully.."
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            success: false,
+            message: "Something went wrong",
+            error
+        })
+    }
 }
-module.exports = { registerController, loginController, testingrouter }
+module.exports = { registerController, loginController, forgotPasswordController }
