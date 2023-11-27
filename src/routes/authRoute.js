@@ -13,11 +13,20 @@ router.post('/register', registerController);
 router.post('/login', loginController);
 
 
-// protect route auth
+// protect route auth (user)
 router.get('/user-auth', requireSignIn, (req, res) => {
     res.status(201).send({ ok: true });
 })
 
+
+// protect route auth (admin)
+router.get('/admin-auth', requireSignIn, isAdmin, (req, res) => {
+    res.status(201).send({ ok: true });
+})
+
 // forgot password route
-router.post('/forgot-password', forgotPasswordController)
+router.post('/forgot-password', forgotPasswordController);
+
+
+
 module.exports = router;
