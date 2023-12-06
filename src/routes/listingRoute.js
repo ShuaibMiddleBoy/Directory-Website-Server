@@ -1,27 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const { isAdmin, requireSignIn } = require('../middlewares/authMiddleware');
-const { createListingController, getAllListings, getSingleListing, deleteListing, updateListingController } = require('../controllers/listingController');
+const { createListingController, getAllListings, getSingleListing, deleteListing, updateListingController, getListingByTitle } = require('../controllers/listingController');
 
+// Create Listing route
+router.post("/create-list", createListingController);
 
-// routes
-
-// create Listing route
-router.post("/create-list", createListingController)
-
-// get all listing route
+// Get all listing route
 router.get('/all-lists', getAllListings);
 
-// get single list route
+// Get single list route
 router.get('/single-list/:id', getSingleListing);
 
-// update list route
+// Update list route
 router.put('/update-list/:id', isAdmin, requireSignIn, updateListingController);
 
 // Delete list route
 router.delete('/delete-list/:id', isAdmin, requireSignIn, deleteListing);
 
-
-
+// Get listings by titleName route
+router.get('/by-title/:titleName', getListingByTitle);
 
 module.exports = router;
