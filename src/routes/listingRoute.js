@@ -21,7 +21,4 @@ router.put('/update-list/:id', isAdmin, requireSignIn, updateListingController);
 // Delete list route
 router.delete('/delete-list/:id', isAdmin, requireSignIn, deleteListing);
 
-
-
-
 module.exports = router;
