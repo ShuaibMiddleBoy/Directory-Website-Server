@@ -7,7 +7,7 @@ const { createListingController, getAllListings, getSingleListing, deleteListing
 // routes
 
 // create Listing route
-router.post("/create-list", requireSignIn, createListingController)
+router.post("/create-list", createListingController)
 
 // get all listing route
 router.get('/all-lists', getAllListings);

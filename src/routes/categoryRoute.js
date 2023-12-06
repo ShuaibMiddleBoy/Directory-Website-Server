@@ -6,10 +6,10 @@ const { createCategoryController, updateCategoryController, categoriesController
 // routes
 
 // create category route
-router.post('/create-category', requireSignIn, isAdmin, createCategoryController);
+router.post('/create-category', createCategoryController);
 
 // update category route
-router.put('/update-category/:id', requireSignIn, isAdmin, updateCategoryController);
+router.put('/update-category/:id', updateCategoryController);
 
 // get all categories route
 router.get('/categories', categoriesController);
@@ -18,7 +18,7 @@ router.get('/categories', categoriesController);
 router.get('/category/:slug', categoryController);
 
 // delete category route
-router.delete('/delete-category/:id', requireSignIn, isAdmin, deleteCategoryController);
+router.delete('/delete-category/:id', deleteCategoryController);
 
 
 module.exports = router;

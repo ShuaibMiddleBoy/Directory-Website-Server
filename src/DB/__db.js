@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 
-mongoose.connect('mongodb://127.0.0.1:27017/directoryListing').then(() => {
+mongoose.connect('mongodb+srv://Directory_Listing:1234@cluster0.v3fivoz.mongodb.net/Directory_Listing').then(() => {
     console.log('DB Connected!!'.bgGreen);
 }).catch((err) => {
     console.log("DB Connection Failed!!".bgRed);
