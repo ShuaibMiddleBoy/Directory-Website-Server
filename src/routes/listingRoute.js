@@ -19,6 +19,10 @@ router.get('/all-lists', getAllListings);
 // Get single list route
 router.get('/single-list/:id', getSingleListing);
 
+router.put('/update-list/:id', updateListingController);
+
+router.delete('/delete-list/:id', deleteListingController);
+
 // Get listings by titleName route
 router.get('/by-title/:titleName', getListingByTitle);
 
