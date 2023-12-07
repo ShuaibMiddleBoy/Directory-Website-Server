@@ -22,10 +22,4 @@ router.get('/single-list/:id', getSingleListing);
 // Get listings by titleName route
 router.get('/by-title/:titleName', getListingByTitle);
 
-// Update listing route
-router.put('/update-list/:id', updateListingController);
-
-// Delete listing route
-router.delete('/delete-list/:id', deleteListingController);
-
 module.exports = router;

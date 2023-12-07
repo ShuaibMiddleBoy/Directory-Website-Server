@@ -119,6 +119,7 @@ const deleteCategoryController = async (req, res) => {
   }
 }
 
+
 const listingsByCategoryController = async (req, res) => {
     try {
       const { slug } = req.params;
