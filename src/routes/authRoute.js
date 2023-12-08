@@ -1,5 +1,5 @@
 const express = require('express');
-const { registerController, loginController, forgotPasswordController } = require('../controllers/registerController');
+const { registerController, loginController, forgotPasswordController, getAllUsers } = require('../controllers/registerController');
 const { requireSignIn, isAdmin } = require("../middlewares/authMiddleware");
 // Router Object
 const router = express.Router();
@@ -27,6 +27,7 @@ router.get('/admin-auth', requireSignIn, isAdmin, (req, res) => {
 // forgot password route
 router.post('/forgot-password', forgotPasswordController);
 
-
+// get all users
+router.get('/users', getAllUsers);
 
 module.exports = router;

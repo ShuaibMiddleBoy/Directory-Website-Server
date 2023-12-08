@@ -164,4 +164,33 @@ const forgotPasswordController = async (req, res) => {
         })
     }
 }
-module.exports = { registerController, loginController, forgotPasswordController }
+const getAllUsers = async (req, res) => {
+    try {
+        // Using await to properly handle the asynchronous operation.
+        const users = await userModel.find({});
+
+        // Check if users array is not empty
+        if(users && users.length > 0){
+            res.status(200).send({
+                success: true,
+                message: "Users retrieved successfully",
+                data: users // Changed 'result' to 'data' for clarity.
+            });
+        } else {
+            // In case there are no users found.
+            res.status(404).send({
+                success: false,
+                message: "No users found"
+            });
+        }        
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            success: false,
+            message: "Something went wrong",
+            error: error.message // Send a more readable error message.
+        });
+    }
+}
+
+module.exports = { registerController, loginController, forgotPasswordController, getAllUsers }

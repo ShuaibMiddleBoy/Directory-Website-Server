@@ -89,27 +89,27 @@ const getSingleListing = async (req, res) => {
   }
 };
 
-// Update Listing controller
+// update listing  controller
 const updateListingController = async (req, res) => {
   try {
     const { id } = req.params;
-    const { category, titleName, websiteLink, phone, address, zipCode } = req.body;
+    const updateData = req.body;
 
-    const listing = await ListingModel.findById(id);
-
-    if (!listing) {
-      return res.status(404).send({ error: "Listing not found" });
+    // Check if the listing exists
+    const listingExists = await ListingModel.exists({ _id: id });
+    if (!listingExists) {
+      return res.status(404).send({ 
+        success: false, 
+        message: "Listing not found" 
+      });
     }
 
-    // Update the fields
-    listing.category = category;
-    listing.titleName = titleName;
-    listing.websiteLink = websiteLink;
-    listing.phone = phone;
-    listing.address = address;
-    listing.zipCode = zipCode;
-
-    const updatedListing = await listing.save();
+    // Update the listing
+    const updatedListing = await ListingModel.findByIdAndUpdate(
+      id, 
+      updateData, 
+      { new: true } // Returns the updated document
+    );
 
     res.status(200).send({
       success: true,
@@ -126,14 +126,16 @@ const updateListingController = async (req, res) => {
   }
 };
 
-// Delete Listing controller
+
+
+
 const deleteListingController = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const result = await ListingModel.deleteOne({ _id: id });
+    const result = await ListingModel.findByIdAndDelete(id);
 
-    if (result.deletedCount === 0) {
+    if (!result) {
       return res.status(404).send({ error: "Listing not found" });
     }
 
@@ -142,7 +144,7 @@ const deleteListingController = async (req, res) => {
       message: "Listing deleted successfully",
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error in deleting listing: ", error);
     res.status(500).send({
       success: false,
       message: "Error in deleting listing",
