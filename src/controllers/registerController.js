@@ -193,4 +193,34 @@ const getAllUsers = async (req, res) => {
     }
 }
 
-module.exports = { registerController, loginController, forgotPasswordController, getAllUsers }
+// Get user profile
+const getUserProfile = async (req, res) => {
+    try {
+        const user = await userModel.findById(req.user._id);
+
+        if (!user) {
+            return res.status(404).send({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        res.status(200).send({
+            success: true,
+            user: {
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                phone: user.phone
+            }
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error in getting user profile',
+            error
+        });
+    }
+}
+
+module.exports = { registerController, loginController, forgotPasswordController,getUserProfile, getAllUsers }

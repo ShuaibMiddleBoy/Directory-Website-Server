@@ -1,9 +1,13 @@
 const ListingModel = require("../models/ListingModel");
+const categoryModel = require("../models/categoryModel");
 
 // Create Listing controller
 const createListingController = async (req, res) => {
   try {
     const { category, titleName, websiteLink, phone, address, zipCode } = req.body;
+
+    // Get the user's ID from req.user._id
+    const userId = req.user._id;
 
     switch (true) {
       case !category:
@@ -20,8 +24,16 @@ const createListingController = async (req, res) => {
         return res.status(400).send({ error: "Zip Code is Required" });
     }
 
+    // Here, find the category by its name (string)
+    const foundCategory = await categoryModel.findOne({ name: category });
+
+    if (!foundCategory) {
+      return res.status(404).send({ error: "Category not found" });
+    }
+
     const listing = await new ListingModel({
-      category,
+      user: userId,
+      category: foundCategory._id, // Use the ObjectId of the found category
       titleName,
       websiteLink,
       phone,
@@ -90,6 +102,7 @@ const getSingleListing = async (req, res) => {
 };
 
 // update listing  controller
+// update listing  controller
 const updateListingController = async (req, res) => {
   try {
     const { id } = req.params;
@@ -130,29 +143,21 @@ const updateListingController = async (req, res) => {
 
 
 const deleteListingController = async (req, res) => {
+  const listingId = req.params.id;
+
   try {
-    const { id } = req.params;
+    const deletedListing = await ListingModel.findByIdAndDelete(listingId);
 
-    const result = await ListingModel.findByIdAndDelete(id);
-
-    if (!result) {
-      return res.status(404).send({ error: "Listing not found" });
+    if (!deletedListing) {
+      return res.status(404).json({ success: false, message: 'Listing not found' });
     }
 
-    res.status(200).send({
-      success: true,
-      message: "Listing deleted successfully",
-    });
+    return res.status(200).json({ success: true, message: 'Listing deleted successfully' });
   } catch (error) {
-    console.error("Error in deleting listing: ", error);
-    res.status(500).send({
-      success: false,
-      message: "Error in deleting listing",
-      error: error.message,
-    });
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
-
 
 // Get listings by titleName controller
 const getListingByTitle = async (req, res) => {
@@ -179,6 +184,30 @@ const getListingByTitle = async (req, res) => {
   }
 };
 
+// Get listings created by the logged-in user controller
+const getMyListings = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Find all listings associated with the user
+    const listings = await ListingModel.find({ user: userId }).populate('category');
+
+    res.status(200).send({
+      success: true,
+      message: "Listings created by the user",
+      listings,
+      totalLengthOfListings: listings.length,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      success: false,
+      message: "Error in getting user's listings",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createListingController,
   getAllListings,
@@ -186,4 +215,5 @@ module.exports = {
   getListingByTitle,
   updateListingController,
   deleteListingController,
+  getMyListings,
 };

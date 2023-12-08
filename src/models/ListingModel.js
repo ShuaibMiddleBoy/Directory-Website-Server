@@ -1,12 +1,17 @@
 const mongoose = require("mongoose");
 
 const listSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "users",
+    required: true,
+  },
   category: {
     type: mongoose.ObjectId,
     ref: "Categories",
   },
   titleName: {
-    type: String, // Add the titleName field
+    type: String,
     required: true,
   },
   websiteLink: {
@@ -22,7 +27,7 @@ const listSchema = new mongoose.Schema({
     required: true,
   },
   zipCode: {
-    type: String, // Add the zip code field
+    type: String,
     required: true,
   },
 }, { timestamps: true });
